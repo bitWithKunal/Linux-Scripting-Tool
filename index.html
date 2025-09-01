@@ -1,0 +1,2905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scripting Mastery — GOD Mode</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Prism (for pretty static code when not editing) -->
+  <link href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism-okaidia.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-tcl.min.js"></script>
+
+  <!-- CodeMirror (interactive playground) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/shell/shell.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.9/mode/tcl/tcl.min.js"></script>
+
+  <!-- jsPDF (cheatsheet download) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+  <style>
+    :root {
+      --bg: #0b1020;
+      --panel: #101935;
+      --panel-2: #0f172a;
+      --acc: #6d5ef0;
+      --acc-2: #10b981;
+      --text: #e5ecff;
+      --muted: #9aa6c9;
+    }
+    body { background: radial-gradient(1200px 800px at 70% -200px, rgba(77, 70, 229, 0.20), transparent 50%), radial-gradient(900px 600px at -200px 20%, rgba(16, 185, 129, 0.18), transparent 50%), var(--bg); color: var(--text); }
+
+    /* Subtle glass cards */
+    .glass { background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 10px 30px rgba(0,0,0,.35); backdrop-filter: blur(8px); }
+    .ring-acc { box-shadow: 0 0 0 1px rgba(109,94,240,0.6), inset 0 0 40px rgba(109,94,240,0.08); }
+    .badge { background: linear-gradient(90deg, var(--acc), #7c6cff); color: white; font-weight: 700; }
+
+    /* Code blocks */
+    pre { margin: 0; }
+    .syntax-highlight pre { background: #0f1a33 !important; border-radius: .75rem; border: 1px solid rgba(255,255,255,0.06); }
+    .syntax-highlight code { font-family: "Fira Code", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-size: .92rem; }
+
+    /* Console */
+    #consolePanel { background: var(--panel-2); border-top: 1px solid rgba(255,255,255,0.08); }
+.console-output {
+    font-family: 'Fira Code', monospace;
+    background: #0f172a;
+    color: #10b981;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: inset 0 0 10px rgba(16,185,129,0.3);
+    white-space: pre-wrap;
+    line-height: 1.5;
+}
+.log-info { color: #bcd7ff; }
+    .log-ok   { color: #71e3b6; }
+    .log-warn { color: #ffd18a; }
+    .log-err  { color: #ff9aa2; }
+
+    /* Buttons */
+    .btn { transition: transform .06s ease; }
+    .btn:active { transform: translateY(1px) scale(.99); }
+
+    /* Step-by-step */
+    .demo-step { display: none; }
+    .demo-step.active { display: block; }
+
+    /* Laptop + Tablet only */
+    @media (max-width: 768px) {
+      main, header, aside, #consolePanel { display: none !important; }
+      #desktopOnly { display: flex !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+  <!-- Desktop-only blocker for mobile -->
+  <div id="desktopOnly" class="hidden fixed inset-0 items-center justify-center text-center p-6">
+    <div class="glass ring-acc rounded-2xl p-8 max-w-md">
+      <div class="text-3xl font-bold mb-2">Desktop / Tablet Only</div>
+      <p class="text-slate-300">This playground is optimized for bigger screens. Please open it on a laptop or tablet.</p>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="w-full py-6 px-6 sticky top-0 z-40" style="background: linear-gradient(180deg, rgba(15,23,42,.9), rgba(15,23,42,.6)); backdrop-filter: blur(6px); border-bottom: 1px solid rgba(255,255,255,0.06);">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="badge px-3 py-1 rounded-full text-xs tracking-wider uppercase">Pro Toolkit</div>
+        <h1 class="text-2xl md:text-3xl font-extrabold"><span class="text-white">Scripting Mastery</span> <span class="text-indigo-300">Created By Kunal Saraswat</span></h1>
+      </div>
+      <div class="flex items-center gap-3">
+        <button onclick="window.open('https://www.linkedin.com/in/kunal-saraswat','_blank')" class="btn px-4 py-2 rounded-full text-white font-semibold shadow-lg" style="background: linear-gradient(90deg, #6d5ef0, #8a7dff);">
+          <i class="fa-solid fa-envelope mr-2"></i>Contact Dev
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex flex-1 overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="hidden lg:block w-72 p-5 overflow-y-auto" style="border-right: 1px solid rgba(255,255,255,0.06); background: linear-gradient(180deg, rgba(16,23,42,.65), rgba(16,23,42,.45));">
+      <div class="space-y-8">
+        <div class="relative">
+    <select
+      id="languageSwitcher"
+      class="w-full appearance-none glass rounded-xl px-3 py-2 pr-10 text-white bg-slate-800/60 border border-white/10 focus:outline-none focus:ring-2 focus:ring-emerald-400 transition"
+      onchange="switchLanguage()"
+    >
+      <option value="bash">🐚 BASH</option>
+      <option value="tcl">⚙️ TCL</option>
+      <option value="sed">🧹 Sed</option>
+      <option value="awk">📊 Awk</option>
+      <option value="grep">🔍 Grep/Egrep</option>
+      <option value="perl">🪄 Perl</option>
+        <option value="python">🐍 Python</option>
+
+    </select>
+
+    <!-- Custom dropdown arrow -->
+    <div class="absolute inset-y-0 right-3 flex items-center pointer-events-none text-slate-400">
+      <i class="fa-solid fa-caret-down"></i>
+    </div>
+  </div>
+        <!-- ACTIONS -->
+<div>
+  <div class="text-sm uppercase tracking-wider text-slate-300/80 mb-3">Actions</div>
+  <div class="grid gap-2">
+    <a href="javascript:void(0)" onclick="runAllVisible()" class="btn glass rounded-lg px-3 py-2 text-left flex items-center">
+      <i class="fa-solid fa-play mr-2 text-green-400"></i>
+      Run All Visible
+    </a>
+    <a href="javascript:void(0)" onclick="downloadCheatsheetForActive()" class="btn glass rounded-lg px-3 py-2 text-left flex items-center">
+      <i class="fa-regular fa-file-lines mr-2 text-yellow-400"></i>
+      Download Cheatsheet (PDF)
+    </a>
+    <a href="javascript:void(0)" onclick="openGuided(getActiveLang())" class="btn glass rounded-lg px-3 py-2 text-left flex items-center">
+      <i class="fa-solid fa-shoe-prints mr-2 text-pink-400"></i>
+      Guided Demo
+    </a>
+  </div>
+</div>
+
+        <!-- RESOURCES + MINI PROJECTS (unified button style) -->
+<div class="space-y-6">
+  <!-- Resources header -->
+  <div>
+    <div class="text-sm uppercase tracking-wider text-slate-300/80 mb-3">Resources</div>
+
+    <div class="flex flex-col gap-2">
+  <a href="https://www.gnu.org/software/bash/manual/bash.html" target="_blank"
+     class="w-full glass rounded-lg px-3 py-2 flex items-center gap-3 text-slate-200 hover:shadow-lg">
+    <i class="fa-solid fa-book-open text-emerald-400"></i>
+    <span>BASH Manual</span>
+  </a>
+
+  <a href="https://www.tcl.tk/man/tcl8.6/TclCmd/contents.htm" target="_blank"
+     class="w-full glass rounded-lg px-3 py-2 flex items-center gap-3 text-slate-200 hover:shadow-lg">
+    <i class="fa-solid fa-book text-pink-400"></i>
+    <span>TCL Manual</span>
+  </a>
+
+  <a href="https://www.gnu.org/software/sed/manual/sed.html" target="_blank"
+     class="w-full glass rounded-lg px-3 py-2 flex items-center gap-3 text-slate-200 hover:shadow-lg">
+    <i class="fa-solid fa-file-pen text-teal-400"></i>
+    <span>Sed Manual</span>
+  </a>
+
+  <a href="https://www.gnu.org/software/gawk/manual/gawk.html" target="_blank"
+     class="w-full glass rounded-lg px-3 py-2 flex items-center gap-3 text-slate-200 hover:shadow-lg">
+    <i class="fa-solid fa-database text-yellow-400"></i>
+    <span>Awk Manual</span>
+  </a>
+        <a href="https://perldoc.perl.org/" target="_blank"
+   class="w-full glass rounded-lg px-3 py-2 flex items-center gap-3 text-slate-200 hover:shadow-lg">
+  <i class="fa-solid fa-book text-red-400"></i>
+  <span>Perl Manual</span>
+</a>
+
+<a href="https://docs.python.org/3/" target="_blank"
+   class="w-full glass rounded-lg px-3 py-2 flex items-center gap-3 text-slate-200 hover:shadow-lg">
+  <i class="fa-solid fa-book text-yellow-400"></i>
+  <span>Python Manual</span>
+</a>
+</div>
+
+  </div>
+
+  <!-- Mini Projects header -->
+  <div>
+    <div class="text-sm uppercase tracking-wider text-slate-300/80 mb-3">Mini Projects</div>
+
+    <div class="flex flex-col gap-2">
+      <a href="#proj-bash" class="w-full glass rounded-lg px-3 py-2 flex items-center gap-3 text-slate-200 hover:shadow-lg">
+        <i class="fa-solid fa-bug text-emerald-400"></i>
+        <span>Bash: Log Monitor</span>
+      </a>
+
+      <a href="#proj-tcl" class="w-full glass rounded-lg px-3 py-2 flex items-center gap-3 text-slate-200 hover:shadow-lg">
+        <i class="fa-solid fa-microchip text-pink-400"></i>
+        <span>TCL: STA Checker</span>
+      </a>
+
+      <a href="#proj-sed" class="w-full glass rounded-lg px-3 py-2 flex items-center gap-3 text-slate-200 hover:shadow-lg">
+        <i class="fa-solid fa-broom text-teal-400"></i>
+        <span>Sed: Config Cleanup</span>
+      </a>
+
+      <a href="#proj-awk" class="w-full glass rounded-lg px-3 py-2 flex items-center gap-3 text-slate-200 hover:shadow-lg">
+        <i class="fa-solid fa-table text-yellow-400"></i>
+        <span>Awk: CSV Summarizer</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+</div>
+
+    </aside>
+
+    <!-- Main content -->
+    <main class="flex-1 overflow-y-auto">
+      <div class="max-w-7xl mx-auto px-6 py-8 space-y-10">
+        <!-- Hero Card -->
+        <section class="glass ring-acc rounded-2xl p-6 md:p-8">
+          <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div>
+              <h2 class="text-2xl md:text-3xl font-extrabold mb-2">Edit, Run, Learn — Faster</h2>
+              <p class="text-slate-300">Inline editor with one-click run, export cheatsheets as PDF, and guided step-by-step demos. Console supports colored logs, copy, clear, and download.</p>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn px-4 py-2 rounded-xl text-white font-semibold shadow-lg" style="background: linear-gradient(90deg,#10b981,#22d3ee);" onclick="openGuided(getActiveLang())"><i class="fa-solid fa-shoe-prints mr-2"></i>Start Guided Demo</button>
+              <button class="btn px-4 py-2 rounded-xl text-white font-semibold shadow-lg" style="background: linear-gradient(90deg,#6d5ef0,#8a7dff);" onclick="downloadCheatsheetForActive()"><i class="fa-regular fa-file-lines mr-2"></i>Download Cheatsheet</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Language Sections -->
+        <section id="bash" class="lang-section space-y-10">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span class="badge px-3 py-1 rounded-full text-xs">BASH</span>
+      <h3 class="text-xl md:text-2xl font-bold">BASH Scripting</h3>
+    </div>
+  </div>
+<div class="glass rounded-2xl p-6 space-y-6">
+
+  <!-- Title -->
+  <div class="flex items-center gap-3">
+    <i class="fa-brands fa-linux text-2xl text-emerald-400"></i>
+    <h3 class="text-2xl font-extrabold bg-gradient-to-r from-emerald-400 to-indigo-400 bg-clip-text text-transparent">
+      BASH Overview
+    </h3>
+  </div>
+
+  <!-- Description -->
+  <div class="p-4 rounded-xl bg-gradient-to-r from-slate-800/60 to-slate-900/60 border border-white/10 shadow-md">
+    <h4 class="font-semibold text-lg flex items-center gap-2 text-emerald-300">
+      <i class="fa-solid fa-circle-info"></i> Description
+    </h4>
+    <p class="text-slate-300 leading-relaxed mt-2">
+      <span class="font-bold text-emerald-400">BASH (Bourne Again SHell)</span> is the default shell on Linux and macOS.
+      It is widely used for <span class="text-indigo-300">automation</span>,
+      <span class="text-indigo-300">system administration</span>, and
+      <span class="text-indigo-300">DevOps scripting</span>.
+      BASH balances <span class="font-semibold text-emerald-400">power</span> with compatibility and ease of use.
+    </p>
+  </div>
+
+  <!-- Use Cases -->
+  <div class="p-4 rounded-xl bg-gradient-to-r from-indigo-800/50 to-indigo-900/50 border border-white/10 shadow-md">
+    <h4 class="font-semibold text-lg flex items-center gap-2 text-indigo-300">
+      <i class="fa-solid fa-bolt"></i> Use Cases
+    </h4>
+    <ul class="grid md:grid-cols-3 gap-3 mt-3 text-slate-300">
+      <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+        <i class="fa-solid fa-file-circle-check text-emerald-400"></i> Log rotation
+      </li>
+      <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+        <i class="fa-solid fa-heart-pulse text-rose-400"></i> System monitoring
+      </li>
+      <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+        <i class="fa-solid fa-truck-fast text-yellow-400"></i> Deployment scripts
+      </li>
+    </ul>
+  </div>
+
+  <!-- Bash Check -->
+  <div class="p-4 rounded-xl bg-gradient-to-r from-emerald-800/50 to-emerald-900/50 border border-white/10 shadow-md">
+    <h4 class="font-semibold text-lg flex items-center gap-2 text-emerald-300">
+      <i class="fa-solid fa-terminal"></i> How to Check if You Are Using BASH
+    </h4>
+    <pre class="syntax-highlight mt-3"><code class="language-bash">echo $SHELL
+echo $0
+ps -p $$</code></pre>
+  </div>
+
+</div>
+
+  <!-- Basics -->
+  <div id="basics" class="grid md:grid-cols-2 gap-6">
+    <!-- Card 1 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">1. Hello World</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-bash">#!/bin/bash
+echo "Hello, World!"</code></pre>
+      </div>
+    </article>
+
+    <!-- Card 2 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">2. Variables & Input</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-bash">#!/bin/bash
+read -p "Enter your name: " name
+echo "Hello, $name!"</code></pre>
+      </div>
+    </article>
+  </div>
+
+  <!-- File Handling -->
+  <div id="file-handling" class="grid md:grid-cols-2 gap-6">
+    <!-- Card 3 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">3. File Backup</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-bash">#!/bin/bash
+file="$1"
+if [[ -f "$file" ]]; then
+  cp "$file" "${file}_$(date +%F_%H%M%S).bak"
+  echo "Backup created"
+else
+  echo "Error: File not found" >&2
+  exit 1
+fi</code></pre>
+      </div>
+    </article>
+
+    <!-- Card 4 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">4. Directory Listing</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-bash">#!/bin/bash
+ls -l | while read -r line; do
+  echo "File: $line"
+done</code></pre>
+      </div>
+    </article>
+  </div>
+
+  <!-- Data Processing -->
+  <div id="data-processing" class="grid md:grid-cols-2 gap-6">
+    <!-- Card 5 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">5. CSV Parsing</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-bash">#!/bin/bash
+IFS=','
+while read -r name age city; do
+  echo "Name: $name, Age: $age, City: $city"
+done < data.csv</code></pre>
+      </div>
+    </article>
+
+    <!-- Card 6 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">6. Log Error Count</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-bash">#!/bin/bash
+error_count=$(grep -c "ERROR" log.txt 2>/dev/null || echo 0)
+echo "Total errors: $error_count"</code></pre>
+      </div>
+    </article>
+  </div>
+
+  <!-- Automation / Advanced -->
+  <div id="automation" class="grid md:grid-cols-2 gap-6">
+    <!-- Card 7 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">7. Parallel Tasks</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-bash">#!/bin/bash
+for i in {1..3}; do
+  (sleep $i; echo "Task $i done") &
+done
+wait
+echo "All tasks completed"</code></pre>
+      </div>
+    </article>
+
+    <!-- Card 8 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">8. Recursive Search</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-bash">#!/bin/bash
+find . -type f -name "*.log" 2>/dev/null | while read -r f; do
+  echo "Found: $f"
+done</code></pre>
+      </div>
+    </article>
+  </div>
+
+  <!-- More Examples -->
+  <div id="more" class="grid md:grid-cols-2 gap-6">
+    <!-- Card 9 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">9. Case Statement</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-bash">#!/bin/bash
+read -p "Enter option (a/b): " opt
+case $opt in
+  a) echo "You chose A";;
+  b) echo "You chose B";;
+  *) echo "Invalid";;
+esac</code></pre>
+      </div>
+    </article>
+
+    <!-- Card 10 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">10. Command Line Args</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-bash">#!/bin/bash
+echo "Script name: $0"
+echo "First arg: $1"
+echo "Second arg: $2"</code></pre>
+      </div>
+    </article>
+
+    <!-- Card 11 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">11. Arithmetic</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-bash">#!/bin/bash
+a=5; b=3
+echo "Sum: $((a+b))"
+echo "Product: $((a*b))"</code></pre>
+      </div>
+    </article>
+
+    <!-- Card 12 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">12. Strings</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-bash">#!/bin/bash
+str="HelloWorld"
+echo "Length: ${#str}"
+echo "Substring: ${str:0:5}"</code></pre>
+      </div>
+    </article>
+
+    <!-- Card 13 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">13. Arrays</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-bash">#!/bin/bash
+arr=(one two three)
+for val in "${arr[@]}"; do
+  echo $val
+done</code></pre>
+      </div>
+    </article>
+
+    <!-- Card 14 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">14. Redirect Output</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-bash">#!/bin/bash
+echo "Logging..." > log.txt
+echo "Done!"</code></pre>
+      </div>
+    </article>
+
+    <!-- Card 15 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">15. Using Pipes</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-bash">#!/bin/bash
+ls -l | grep ".txt"</code></pre>
+      </div>
+    </article>
+  </div>
+</section>
+
+          <section id="perl" class="lang-section hidden space-y-10">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span class="badge px-3 py-1 rounded-full text-xs">PERL</span>
+      <h3 class="text-xl md:text-2xl font-bold">Perl Scripting</h3>
+    </div>
+  </div>
+
+  <div class="glass rounded-2xl p-6 space-y-6">
+    <div class="flex items-center gap-3">
+      <i class="fa-solid fa-magic text-2xl text-red-400"></i>
+      <h3 class="text-2xl font-extrabold bg-gradient-to-r from-red-400 to-pink-400 bg-clip-text text-transparent">
+        Perl Overview
+      </h3>
+    </div>
+
+    <div class="p-4 rounded-xl bg-gradient-to-r from-slate-800/60 to-slate-900/60 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-red-300">
+        <i class="fa-solid fa-circle-info"></i> Description
+      </h4>
+      <p class="text-slate-300 leading-relaxed mt-2">
+        <span class="font-bold text-red-400">Perl</span> is known as the “Swiss Army Knife” of scripting.
+        It excels at <span class="text-pink-300">text processing</span>,
+        <span class="text-pink-300">system administration</span>, and
+        <span class="text-pink-300">web development</span>.
+      </p>
+    </div>
+
+    <div class="p-4 rounded-xl bg-gradient-to-r from-pink-800/50 to-pink-900/50 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-pink-300">
+        <i class="fa-solid fa-bolt"></i> Use Cases
+      </h4>
+      <ul class="grid md:grid-cols-3 gap-3 mt-3 text-slate-300">
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2"><i class="fa-solid fa-code"></i> Regex & Text Parsing</li>
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2"><i class="fa-solid fa-gears"></i> Automation Scripts</li>
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2"><i class="fa-solid fa-globe"></i> Legacy Web Apps</li>
+      </ul>
+    </div>
+
+    <div class="p-4 rounded-xl bg-gradient-to-r from-red-800/50 to-red-900/50 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-red-300">
+        <i class="fa-solid fa-terminal"></i> Check if Perl is Installed
+      </h4>
+      <pre class="syntax-highlight mt-3"><code class="language-bash">perl -v</code></pre>
+    </div>
+  </div>
+
+  <!-- 15 Perl Examples -->
+  <div id="perl-examples" class="grid md:grid-cols-2 gap-6">
+
+    <!-- Example 1 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">1. Hello World</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'perl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-perl">#!/usr/bin/perl
+print "Hello, World!\n";</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 2 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">2. Variables & Input</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'perl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-perl">#!/usr/bin/perl
+print "Enter your name: ";
+my $name = &lt;STDIN&gt;;
+chomp($name);
+print "Hello, $name!\n";</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 3 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">3. If-Else Condition</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'perl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-perl">#!/usr/bin/perl
+my $age = 18;
+if ($age &gt;= 18) {
+    print "Adult\n";
+} else {
+    print "Minor\n";
+}</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 4 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">4. Loops</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'perl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-perl">#!/usr/bin/perl
+for my $i (1..5) {
+    print "Number: $i\n";
+}</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 5 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">5. Arrays</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'perl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-perl">#!/usr/bin/perl
+my @fruits = ("apple", "banana", "cherry");
+foreach my $f (@fruits) {
+    print "$f\n";
+}</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 6 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">6. Hashes</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'perl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-perl">#!/usr/bin/perl
+my %colors = ("red" =&gt; "#ff0000", "green" =&gt; "#00ff00");
+while (my ($k,$v) = each %colors) {
+    print "$k =&gt; $v\n";
+}</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 7 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">7. File Read</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'perl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-perl">#!/usr/bin/perl
+open(my $fh, "&lt;", "data.txt") or die "Cannot open file";
+while (my $line = &lt;$fh&gt;) {
+    print $line;
+}
+close $fh;</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 8 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">8. File Write</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'perl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-perl">#!/usr/bin/perl
+open(my $fh, "&gt;", "output.txt") or die "Cannot open file";
+print $fh "Writing to file\n";
+close $fh;</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 9 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">9. Subroutines</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'perl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-perl">#!/usr/bin/perl
+sub greet {
+    my ($name) = @_;
+    print "Hello, $name!\n";
+}
+greet("Kunal");</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 10 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">10. Command Line Args</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'perl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-perl">#!/usr/bin/perl
+print "Script name: $0\n";
+print "First arg: $ARGV[0]\n";</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 11 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">11. Arithmetic</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'perl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-perl">#!/usr/bin/perl
+my $a = 10;
+my $b = 3;
+print "Sum: ".($a + $b)."\n";
+print "Product: ".($a * $b)."\n";</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 12 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">12. Strings</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'perl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-perl">#!/usr/bin/perl
+my $str = "HelloWorld";
+print "Length: ".length($str)."\n";
+print "Substring: ".substr($str,0,5)."\n";</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 13 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">13. Regex Match</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'perl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-perl">#!/usr/bin/perl
+my $text = "error: file not found";
+if ($text =~ /error/) {
+    print "Found error!\n";
+}</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 14 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">14. System Command</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'perl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-perl">#!/usr/bin/perl
+system("ls -l");</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 15 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">15. Using Pipes</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'perl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-perl">#!/usr/bin/perl
+open(my $ls, "ls |") or die "can't run ls";
+while (&lt;$ls&gt;) { print; }
+close $ls;</code></pre>
+      </div>
+    </article>
+
+  </div>
+</section>
+<section id="python" class="lang-section hidden space-y-10">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span class="badge px-3 py-1 rounded-full text-xs">PYTHON</span>
+      <h3 class="text-xl md:text-2xl font-bold">Python Scripting</h3>
+    </div>
+  </div>
+
+  <div class="glass rounded-2xl p-6 space-y-6">
+    <div class="flex items-center gap-3">
+      <i class="fa-brands fa-python text-2xl text-yellow-400"></i>
+      <h3 class="text-2xl font-extrabold bg-gradient-to-r from-yellow-400 to-green-400 bg-clip-text text-transparent">
+        Python Overview
+      </h3>
+    </div>
+
+    <div class="p-4 rounded-xl bg-gradient-to-r from-slate-800/60 to-slate-900/60 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-yellow-300">
+        <i class="fa-solid fa-circle-info"></i> Description
+      </h4>
+      <p class="text-slate-300 leading-relaxed mt-2">
+        <span class="font-bold text-yellow-400">Python</span> is one of the most popular programming languages.
+        It is widely used for <span class="text-green-300">automation</span>,
+        <span class="text-green-300">data science</span>,
+        <span class="text-green-300">AI/ML</span>, and
+        <span class="text-green-300">web development</span>.
+      </p>
+    </div>
+
+    <div class="p-4 rounded-xl bg-gradient-to-r from-green-800/50 to-green-900/50 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-green-300">
+        <i class="fa-solid fa-bolt"></i> Use Cases
+      </h4>
+      <ul class="grid md:grid-cols-3 gap-3 mt-3 text-slate-300">
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2"><i class="fa-solid fa-robot"></i> AI / ML</li>
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2"><i class="fa-solid fa-database"></i> Data Science</li>
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2"><i class="fa-solid fa-code"></i> Automation</li>
+      </ul>
+    </div>
+
+    <div class="p-4 rounded-xl bg-gradient-to-r from-yellow-800/50 to-yellow-900/50 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-yellow-300">
+        <i class="fa-solid fa-terminal"></i> Check if Python is Installed
+      </h4>
+      <pre class="syntax-highlight mt-3"><code class="language-bash">python3 --version</code></pre>
+    </div>
+  </div>
+
+  <!-- 15 Python Examples -->
+  <div id="python-examples" class="grid md:grid-cols-2 gap-6">
+
+    <!-- Example 1 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">1. Hello World</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'python')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-python">print("Hello, World!")</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 2 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">2. Variables & Input</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'python')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-python">name = input("Enter your name: ")
+print(f"Hello, {name}!")</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 3 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">3. If-Else Condition</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'python')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-python">age = 18
+if age >= 18:
+    print("Adult")
+else:
+    print("Minor")</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 4 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">4. Loops</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'python')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-python">for i in range(1,6):
+    print("Number:", i)</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 5 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">5. Lists</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'python')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-python">fruits = ["apple","banana","cherry"]
+for f in fruits:
+    print(f)</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 6 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">6. Dictionaries</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'python')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-python">colors = {"red":"#ff0000","green":"#00ff00"}
+for k,v in colors.items():
+    print(k, "=>", v)</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 7 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">7. File Read</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'python')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-python">with open("data.txt","r") as f:
+    for line in f:
+        print(line.strip())</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 8 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">8. File Write</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'python')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-python">with open("output.txt","w") as f:
+    f.write("Writing to file\n")</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 9 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">9. Functions</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'python')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-python">def greet(name):
+    print(f"Hello, {name}!")
+greet("Kunal")</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 10 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">10. Command Line Args</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'python')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-python">import sys
+print("Script:", sys.argv[0])
+if len(sys.argv) > 1:
+    print("First arg:", sys.argv[1])</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 11 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">11. Arithmetic</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'python')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-python">a, b = 10, 3
+print("Sum:", a+b)
+print("Product:", a*b)</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 12 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">12. Strings</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'python')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-python">s = "HelloWorld"
+print("Length:", len(s))
+print("Substring:", s[:5])</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 13 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">13. Regex Match</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'python')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-python">import re
+text = "error: file not found"
+if re.search("error", text):
+    print("Found error!")</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 14 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">14. System Command</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'python')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-python">import os
+os.system("ls -l")</code></pre>
+      </div>
+    </article>
+
+    <!-- Example 15 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">15. List Comprehension</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'python')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-python">squares = [x**2 for x in range(1,6)]
+print(squares)</code></pre>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+        <!-- TCL Section (short showcase) -->
+        <!-- Language Sections -->
+<section id="tcl" class="lang-section hidden space-y-10">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span class="badge px-3 py-1 rounded-full text-xs">TCL</span>
+      <h3 class="text-xl md:text-2xl font-bold">TCL Scripting</h3>
+    </div>
+  </div>
+
+  <!-- Overview -->
+  <div class="glass rounded-2xl p-6 space-y-6">
+
+    <!-- Title -->
+    <div class="flex items-center gap-3">
+      <i class="fa-solid fa-code text-2xl text-pink-400"></i>
+      <h3 class="text-2xl font-extrabold bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
+        TCL Overview
+      </h3>
+    </div>
+
+    <!-- Description -->
+    <div class="p-4 rounded-xl bg-gradient-to-r from-slate-800/60 to-slate-900/60 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-pink-300">
+        <i class="fa-solid fa-circle-info"></i> Description
+      </h4>
+      <p class="text-slate-300 leading-relaxed mt-2">
+        <span class="font-bold text-pink-400">TCL (Tool Command Language)</span> is a lightweight,
+        embeddable scripting language widely used in <span class="text-purple-300">EDA tools</span>,
+        <span class="text-purple-300">network testing</span>, and <span class="text-purple-300">automation frameworks</span>.
+        It is popular because of its <span class="font-semibold text-pink-400">simplicity</span>,
+        fast prototyping, and easy integration with C/C++.
+      </p>
+    </div>
+
+    <!-- Use Cases -->
+    <div class="p-4 rounded-xl bg-gradient-to-r from-purple-800/50 to-purple-900/50 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-purple-300">
+        <i class="fa-solid fa-bolt"></i> Use Cases
+      </h4>
+      <ul class="grid md:grid-cols-3 gap-3 mt-3 text-slate-300">
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-microchip text-pink-400"></i> EDA scripting (Synopsys, Cadence)
+        </li>
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-network-wired text-indigo-400"></i> Network simulation & testing
+        </li>
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-robot text-yellow-400"></i> Automation frameworks
+        </li>
+      </ul>
+    </div>
+
+    <!-- TCL Check -->
+    <div class="p-4 rounded-xl bg-gradient-to-r from-pink-800/50 to-pink-900/50 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-pink-300">
+        <i class="fa-solid fa-terminal"></i> How to Check if TCL is Installed
+      </h4>
+      <pre class="syntax-highlight mt-3"><code class="language-bash">tclsh
+info patchlevel
+exit</code></pre>
+    </div>
+  </div>
+
+  <!-- Basics -->
+  <div id="basics-tcl" class="grid md:grid-cols-2 gap-6">
+    <!-- 1 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">1. Hello World</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'tcl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-tcl">puts "Hello, World!"</code></pre>
+      </div>
+    </article>
+
+    <!-- 2 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">2. Variables & Input</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'tcl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-tcl">puts "Enter your name: "
+flush stdout
+gets stdin name
+puts "Hello, $name!"</code></pre>
+      </div>
+    </article>
+  </div>
+
+  <!-- File Handling -->
+  <div id="file-handling-tcl" class="grid md:grid-cols-2 gap-6">
+    <!-- 3 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">3. File Backup</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'tcl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-tcl">set file "data.txt"
+set backup "${file}_[clock format [clock seconds] -format %Y%m%d_%H%M%S].bak"
+file copy -force $file $backup
+puts "Backup created: $backup"</code></pre>
+      </div>
+    </article>
+
+    <!-- 4 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">4. Directory Listing</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'tcl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-tcl">foreach f [glob *] {
+    puts "File: $f"
+}</code></pre>
+      </div>
+    </article>
+  </div>
+
+  <!-- Data Processing -->
+  <div id="data-processing-tcl" class="grid md:grid-cols-2 gap-6">
+    <!-- 5 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">5. CSV Parsing</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'tcl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-tcl">set fh [open "data.csv" r]
+while {[gets $fh line] >= 0} {
+    lassign [split $line ,] name age city
+    puts "Name: $name, Age: $age, City: $city"
+}
+close $fh</code></pre>
+      </div>
+    </article>
+
+    <!-- 6 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">6. Log Error Count</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'tcl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-tcl">set data [read [open "log.txt" r]]
+set count [regexp -all {ERROR} $data]
+puts "Total errors: $count"</code></pre>
+      </div>
+    </article>
+  </div>
+
+  <!-- Automation / Advanced -->
+  <div id="automation-tcl" class="grid md:grid-cols-2 gap-6">
+    <!-- 7 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">7. Parallel Tasks</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'tcl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-tcl">foreach i {1 2 3} {
+    after [expr {$i * 1000}] [list puts "Task $i done"]
+}
+vwait forever</code></pre>
+      </div>
+    </article>
+
+    <!-- 8 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">8. Recursive Search</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'tcl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-tcl">foreach f [glob -directory . -types f -nocomplain *.log] {
+    puts "Found: $f"
+}</code></pre>
+      </div>
+    </article>
+  </div>
+
+  <!-- More Examples -->
+  <div id="more-tcl" class="grid md:grid-cols-2 gap-6">
+    <!-- 9 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">9. Switch Statement</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'tcl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-tcl">puts -nonewline "Enter option (a/b): "
+flush stdout
+gets stdin opt
+switch $opt {
+    a {puts "You chose A"}
+    b {puts "You chose B"}
+    default {puts "Invalid"}
+}</code></pre>
+      </div>
+    </article>
+
+    <!-- 10 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">10. Command Line Args</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'tcl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-tcl">puts "Script name: $argv0"
+puts "Arguments count: $argc"
+puts "Arguments: $argv"</code></pre>
+      </div>
+    </article>
+
+    <!-- 11 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">11. Arithmetic</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'tcl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-tcl">set a 5
+set b 3
+puts "Sum: [expr {$a + $b}]"
+puts "Product: [expr {$a * $b}]"</code></pre>
+      </div>
+    </article>
+
+    <!-- 12 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">12. Strings</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'tcl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-tcl">set str "HelloWorld"
+puts "Length: [string length $str]"
+puts "Substring: [string range $str 0 4]"</code></pre>
+      </div>
+    </article>
+
+    <!-- 13 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">13. Arrays</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'tcl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-tcl">array set colors {red "#ff0000" green "#00ff00" blue "#0000ff"}
+foreach {key val} [array get colors] {
+    puts "$key → $val"
+}</code></pre>
+      </div>
+    </article>
+
+    <!-- 14 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">14. Redirect Output</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'tcl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-tcl">set fh [open "log.txt" w]
+puts $fh "Logging started..."
+close $fh
+puts "Done!"</code></pre>
+      </div>
+    </article>
+
+    <!-- 15 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">15. Using Pipes</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'tcl')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight">
+        <pre><code class="language-tcl">set result [exec ls | grep tcl]
+puts "Files: $result"</code></pre>
+      </div>
+    </article>
+  </div>
+</section>
+
+        <!-- Sed Section -->
+<section id="sed" class="lang-section hidden space-y-10">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span class="badge px-3 py-1 rounded-full text-xs">SED</span>
+      <h3 class="text-xl md:text-2xl font-bold">Sed (Stream Editor)</h3>
+    </div>
+  </div>
+
+  <!-- Overview -->
+  <div class="glass rounded-2xl p-6 space-y-6">
+
+    <div class="flex items-center gap-3">
+      <i class="fa-solid fa-stream text-2xl text-emerald-400"></i>
+      <h3 class="text-2xl font-extrabold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+        Sed Overview
+      </h3>
+    </div>
+
+    <div class="p-4 rounded-xl bg-gradient-to-r from-slate-800/60 to-slate-900/60 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-emerald-300">
+        <i class="fa-solid fa-circle-info"></i> Description
+      </h4>
+      <p class="text-slate-300 leading-relaxed mt-2">
+        <span class="font-bold text-emerald-400">Sed</span> is a stream editor in Unix/Linux used for parsing and
+        transforming text. It excels at <span class="text-teal-300">find-and-replace</span>,
+        <span class="text-teal-300">in-place editing</span>, and <span class="text-teal-300">batch automation</span>.
+      </p>
+    </div>
+
+    <div class="p-4 rounded-xl bg-gradient-to-r from-teal-800/50 to-teal-900/50 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-teal-300">
+        <i class="fa-solid fa-bolt"></i> Use Cases
+      </h4>
+      <ul class="grid md:grid-cols-3 gap-3 mt-3 text-slate-300">
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-file-pen text-emerald-400"></i> Bulk text replacements
+        </li>
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-code text-yellow-400"></i> Config file updates
+        </li>
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-list text-indigo-400"></i> Data cleaning pipelines
+        </li>
+      </ul>
+    </div>
+
+    <div class="p-4 rounded-xl bg-gradient-to-r from-emerald-800/50 to-emerald-900/50 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-emerald-300">
+        <i class="fa-solid fa-terminal"></i> Check if SED is Installed
+      </h4>
+      <pre class="syntax-highlight mt-3"><code class="language-bash">sed --version</code></pre>
+    </div>
+  </div>
+
+  <!-- Examples Grid -->
+  <div id="sed-examples" class="grid md:grid-cols-2 gap-6">
+    <!-- 1 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">1. Replace Text</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">sed 's/hello/hi/g' input.txt</code></pre></div>
+    </article>
+
+    <!-- 2 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">2. Replace In-Place</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">sed -i 's/foo/bar/g' file.txt</code></pre></div>
+    </article>
+
+    <!-- 3 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">3. Delete Lines Containing Word</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">sed '/error/d' log.txt</code></pre></div>
+    </article>
+
+    <!-- 4 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">4. Print Only Matching Lines</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">sed -n '/success/p' log.txt</code></pre></div>
+    </article>
+
+    <!-- 5 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">5. Replace Only First Match</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">sed 's/foo/bar/' file.txt</code></pre></div>
+    </article>
+
+    <!-- 6 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">6. Replace Only 2nd Occurrence</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">sed 's/foo/bar/2' file.txt</code></pre></div>
+    </article>
+
+    <!-- 7 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">7. Replace by Line Number</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">sed '3s/foo/bar/' file.txt</code></pre></div>
+    </article>
+
+    <!-- 8 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">8. Delete Specific Line Number</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">sed '5d' file.txt</code></pre></div>
+    </article>
+
+    <!-- 9 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">9. Insert Line Before Match</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">sed '/pattern/i\This goes before' file.txt</code></pre></div>
+    </article>
+
+    <!-- 10 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">10. Append Line After Match</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">sed '/pattern/a\This goes after' file.txt</code></pre></div>
+    </article>
+  </div>
+
+  <!-- More Examples -->
+  <div id="sed-more" class="grid md:grid-cols-2 gap-6">
+    <!-- 11 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">11. Print Line Range</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">sed -n '5,10p' file.txt</code></pre></div>
+    </article>
+
+    <!-- 12 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">12. Replace with Regex</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">sed -E 's/[0-9]+/NUM/g' file.txt</code></pre></div>
+    </article>
+
+    <!-- 13 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">13. Multiple Commands</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">sed -e 's/foo/bar/' -e '/error/d' file.txt</code></pre></div>
+    </article>
+
+    <!-- 14 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">14. Replace Using File</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">sed -f script.sed input.txt</code></pre></div>
+    </article>
+
+    <!-- 15 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">15. Write Output to New File</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">sed 's/foo/bar/g' input.txt > output.txt</code></pre></div>
+    </article>
+  </div>
+</section>
+
+        <section id="awk" class="lang-section hidden space-y-10">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span class="badge px-3 py-1 rounded-full text-xs">AWK</span>
+      <h3 class="text-xl md:text-2xl font-bold">AWK</h3>
+    </div>
+  </div>
+
+  <div class="glass rounded-2xl p-6 space-y-6">
+
+    <!-- Title -->
+    <div class="flex items-center gap-3">
+      <i class="fa-solid fa-database text-2xl text-yellow-400"></i>
+      <h3 class="text-2xl font-extrabold bg-gradient-to-r from-yellow-400 to-orange-400 bg-clip-text text-transparent">
+        AWK Overview
+      </h3>
+    </div>
+
+    <!-- Description -->
+    <div class="p-4 rounded-xl bg-gradient-to-r from-slate-800/60 to-slate-900/60 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-yellow-300">
+        <i class="fa-solid fa-circle-info"></i> Description
+      </h4>
+      <p class="text-slate-300 leading-relaxed mt-2">
+        <span class="font-bold text-yellow-400">AWK</span> is a powerful text-processing tool.
+        It reads files line by line, splits each line into <span class="font-semibold text-orange-300">fields</span>,
+        and lets you apply <span class="text-yellow-300">patterns</span> and <span class="text-yellow-300">actions</span>.
+        Common in <span class="text-orange-300">log analysis</span>, <span class="text-orange-300">CSV processing</span>, and <span class="text-orange-300">reporting</span>.
+      </p>
+    </div>
+
+    <!-- Use Cases -->
+    <div class="p-4 rounded-xl bg-gradient-to-r from-orange-800/50 to-yellow-900/50 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-orange-300">
+        <i class="fa-solid fa-bolt"></i> Use Cases
+      </h4>
+      <ul class="grid md:grid-cols-3 gap-3 mt-3 text-slate-300">
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-table text-yellow-400"></i> Summarizing CSV data
+        </li>
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-chart-line text-orange-400"></i> Log analysis
+        </li>
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-filter text-green-400"></i> Quick filtering
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- AWK Examples -->
+  <div id="awk-examples" class="grid md:grid-cols-2 gap-6">
+
+    <!-- 1 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">1. Hello World</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">awk 'BEGIN {print "Hello, World!"}'</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 <code>BEGIN</code> runs before any line is read.</p>
+    </article>
+
+    <!-- 2 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">2. Sum Column 2</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">awk '{sum += $2} END {print sum}' data.txt</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 <code>$2</code> is the 2nd field. <code>END</code> runs after all lines.</p>
+    </article>
+
+    <!-- 3 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">3. Print Line Numbers</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">awk '{print NR, $0}' data.txt</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 <code>NR</code> = line number, <code>$0</code> = full line.</p>
+    </article>
+
+    <!-- 4 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">4. Print First Column</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">awk '{print $1}' data.txt</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 <code>$1</code> = first field in the line.</p>
+    </article>
+
+    <!-- 5 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">5. Average of Column 3</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">awk '{sum+=$3} END {print sum/NR}' data.txt</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 <code>NR</code> counts lines. <code>$3</code> = 3rd field.</p>
+    </article>
+
+    <!-- 6 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">6. Filter "ERROR" Lines</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">awk '/ERROR/ {print}' log.txt</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 Pattern match. Prints only matching lines.</p>
+    </article>
+
+    <!-- 7 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">7. FNR vs NR</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">awk '{print FNR, NR, $0}' file1 file2</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 <code>FNR</code> = line # in current file. <code>NR</code> = global line #.</p>
+    </article>
+
+    <!-- 8 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">8. Field Separator (CSV)</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">awk -F, '{print $1, $3}' data.csv</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 <code>-F,</code> sets delimiter to comma.</p>
+    </article>
+
+    <!-- 9 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">9. Conditional Filtering</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">awk '$3 > 50 {print $1, $3}' data.txt</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 Only prints if 3rd field is > 50.</p>
+    </article>
+
+    <!-- 10 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">10. Range of Lines</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">awk 'NR==2,NR==5 {print}' data.txt</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 Prints lines 2 through 5.</p>
+    </article>
+
+    <!-- 11 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">11. Pretty Printing</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">awk '{printf "%-10s %5d\n", $1, $2}' data.txt</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 <code>printf</code> lets you format output neatly.</p>
+    </article>
+
+    <!-- 12 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">12. String Functions</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">awk '{print length($1), substr($1,1,3)}' data.txt</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 <code>length()</code>, <code>substr()</code> work on fields.</p>
+    </article>
+
+    <!-- 13 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">13. Arrays & Counting</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">awk '{count[$1]++} END {for (c in count) print c, count[c]}' data.txt</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 Uses associative arrays to count values.</p>
+    </article>
+
+    <!-- 14 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">14. Redirect Output</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">awk '{print $1}' data.txt > names.txt</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 Redirects AWK output into a new file.</p>
+    </article>
+
+    <!-- 15 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">15. Multiple Files</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">awk 'FNR==1 {print "==>",FILENAME} {print}' file1 file2</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 <code>FNR</code> restarts per file. Prints filename headers.</p>
+    </article>
+
+  </div>
+</section>
+
+        <section id="grep" class="lang-section hidden space-y-10">
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <span class="badge px-3 py-1 rounded-full text-xs">GREP</span>
+      <h3 class="text-xl md:text-2xl font-bold">Grep</h3>
+    </div>
+  </div>
+
+  <div class="glass rounded-2xl p-6 space-y-6">
+    <!-- Title -->
+    <div class="flex items-center gap-3">
+      <i class="fa-solid fa-magnifying-glass text-2xl text-blue-400"></i>
+      <h3 class="text-2xl font-extrabold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+        Grep Overview
+      </h3>
+    </div>
+
+    <!-- Description -->
+    <div class="p-4 rounded-xl bg-gradient-to-r from-slate-800/60 to-slate-900/60 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-blue-300">
+        <i class="fa-solid fa-circle-info"></i> Description
+      </h4>
+      <p class="text-slate-300 leading-relaxed mt-2">
+        <span class="font-bold text-blue-400">grep</span> is a command-line tool for searching text using
+        <span class="text-cyan-300">regular expressions</span>.
+        It is extremely fast and widely used for <span class="text-blue-300">log scanning</span>,
+        <span class="text-cyan-300">pattern matching</span>, and <span class="text-blue-300">filtering output</span>.
+      </p>
+    </div>
+
+    <!-- Use Cases -->
+    <div class="p-4 rounded-xl bg-gradient-to-r from-blue-800/50 to-cyan-900/50 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-cyan-300">
+        <i class="fa-solid fa-bolt"></i> Use Cases
+      </h4>
+      <ul class="grid md:grid-cols-3 gap-3 mt-3 text-slate-300">
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-file-lines text-blue-400"></i> Searching logs
+        </li>
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-terminal text-cyan-400"></i> Filtering command output
+        </li>
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-search text-green-400"></i> Pattern matching
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- GREP Examples -->
+  <div id="grep-examples" class="grid md:grid-cols-2 gap-6">
+
+    <!-- 1 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">1. Simple Search</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">grep "ERROR" logfile.txt</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 Finds all lines containing "ERROR".</p>
+    </article>
+
+    <!-- 2 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">2. Case-Insensitive Search</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">grep -i "error" logfile.txt</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 Ignores case (matches ERROR, Error, error).</p>
+    </article>
+
+    <!-- 3 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">3. Count Matches</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">grep -c "ERROR" logfile.txt</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 Prints the number of matching lines.</p>
+    </article>
+
+    <!-- 4 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">4. Show Line Numbers</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">grep -n "ERROR" logfile.txt</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 Shows matching line numbers.</p>
+    </article>
+
+    <!-- 5 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">5. Invert Match</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">grep -v "INFO" logfile.txt</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 Shows lines that do <b>not</b> contain "INFO".</p>
+    </article>
+
+    <!-- 6 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">6. Match Whole Word</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">grep -w "root" /etc/passwd</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 Matches "root" but not "roots" or "groot".</p>
+    </article>
+
+    <!-- 7 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">7. Recursive Search</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">grep -r "TODO" ./project</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 Searches inside all files under ./project.</p>
+    </article>
+
+    <!-- 8 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">8. Only Filenames</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">grep -l "main()" *.c</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 Prints only filenames that matched.</p>
+    </article>
+
+    <!-- 9 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">9. Exclude Filenames</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">grep -L "TODO" *.txt</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 Prints filenames with <b>no match</b>.</p>
+    </article>
+
+    <!-- 10 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">10. Extended Regex</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">grep -E "cat|dog" animals.txt</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 Uses OR pattern (matches cat or dog).</p>
+    </article>
+
+    <!-- 11 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">11. Show Context (Before)</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">grep -B 2 "ERROR" logfile.txt</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 Shows 2 lines before each match.</p>
+    </article>
+
+    <!-- 12 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">12. Show Context (After)</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">grep -A 3 "ERROR" logfile.txt</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 Shows 3 lines after each match.</p>
+    </article>
+
+    <!-- 13 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">13. Full Context</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">grep -C 2 "ERROR" logfile.txt</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 Shows 2 lines before and after matches.</p>
+    </article>
+
+    <!-- 14 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">14. Match Start of Line</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">grep "^root" /etc/passwd</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 Matches lines that start with "root".</p>
+    </article>
+
+    <!-- 15 -->
+    <article class="glass rounded-2xl p-5 space-y-4">
+      <header class="flex items-center justify-between">
+        <h4 class="font-semibold">15. Match End of Line</h4>
+        <div class="flex gap-2">
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="toggleEditor(this, 'bash')"><i class="fa-solid fa-pen"></i> Edit & Run</button>
+          <button class="btn text-xs px-3 py-1 glass rounded-full" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i> Copy</button>
+        </div>
+      </header>
+      <div class="syntax-highlight"><pre><code class="language-bash">grep "bash$" /etc/passwd</code></pre></div>
+      <p class="text-slate-400 text-sm">👉 Matches lines that end with "bash".</p>
+    </article>
+
+  </div>
+</section>
+<section id="proj-bash" class="lang-section hidden space-y-10">
+  <!-- Header -->
+  <div class="flex items-center gap-3">
+    <span class="badge px-3 py-1 rounded-full text-xs">BASH Project</span>
+    <h3 class="text-xl md:text-2xl font-bold">Log Monitor + Alert</h3>
+  </div>
+
+  <!-- Project Card -->
+  <article class="glass rounded-2xl p-6 space-y-6">
+    <!-- Overview -->
+    <div class="p-4 rounded-xl bg-gradient-to-r from-slate-800/60 to-slate-900/60 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-emerald-300">
+        <i class="fa-solid fa-circle-info"></i> Project Overview
+      </h4>
+      <p class="text-slate-300 leading-relaxed mt-2">
+        This Bash project <span class="text-emerald-400 font-semibold">monitors application logs</span>
+        and raises an alert if the number of <code class="text-yellow-300">ERROR</code> entries
+        crosses a threshold. It’s a simple but powerful script for
+        <span class="text-indigo-300">DevOps engineers</span> and
+        <span class="text-indigo-300">system admins</span>.
+      </p>
+    </div>
+
+    <!-- Use Cases -->
+    <div class="p-4 rounded-xl bg-gradient-to-r from-indigo-800/50 to-indigo-900/50 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-indigo-300">
+        <i class="fa-solid fa-bolt"></i> Real-World Use Cases
+      </h4>
+      <ul class="grid md:grid-cols-2 gap-3 mt-3 text-slate-300">
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-server text-emerald-400"></i> Monitor server logs for repeated errors
+        </li>
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-bug text-red-400"></i> Detect application crashes early
+        </li>
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-shield-halved text-yellow-400"></i> Alert on suspicious activities in logs
+        </li>
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-bell text-pink-400"></i> Integrate with Slack/Email notifications
+        </li>
+      </ul>
+    </div>
+
+    <!-- Script -->
+    <div>
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-emerald-300">
+        <i class="fa-solid fa-code"></i> Implementation Script
+      </h4>
+      <div class="syntax-highlight mt-3">
+        <pre><code class="language-bash">#!/bin/bash
+# ==========================
+# Log Monitor + Alert Script
+# ==========================
+
+# 1. Set the log file path
+logfile="app.log"
+
+# 2. Define the error threshold
+threshold=5
+
+# 3. Count occurrences of the word "ERROR" in the log file
+#    - grep -c : count matches
+#    - "$logfile": file to scan
+count=$(grep -c "ERROR" "$logfile")
+
+# 4. Compare the count with threshold
+if (( count > threshold )); then
+    echo "🚨 High error rate detected! ($count errors)"
+    # Optional: send alert via email or Slack
+    # mail -s "High Error Alert" admin@example.com <<< "Found $count errors in $logfile"
+else
+    echo "✅ All good, only $count errors."
+fi</code></pre>
+      </div>
+    </div>
+
+    <!-- How to Run -->
+    <div class="p-4 rounded-xl bg-gradient-to-r from-green-800/40 to-green-900/40 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-green-300">
+        <i class="fa-solid fa-terminal"></i> How to Run
+      </h4>
+      <ol class="list-decimal ml-6 mt-2 text-slate-300 space-y-1">
+        <li>Save the script as <code>log_monitor.sh</code></li>
+        <li>Make it executable: <code>chmod +x log_monitor.sh</code></li>
+        <li>Run it: <code>./log_monitor.sh</code></li>
+        <li>Modify <code>threshold</code> as needed</li>
+        <li>Extend with Slack/Email alerts for production use</li>
+      </ol>
+    </div>
+  </article>
+</section>
+<section id="proj-tcl" class="lang-section hidden space-y-10">
+  <!-- Header -->
+  <div class="flex items-center gap-3">
+    <span class="badge px-3 py-1 rounded-full text-xs">TCL Project</span>
+    <h3 class="text-xl md:text-2xl font-bold">STA Constraint Checker</h3>
+  </div>
+
+  <!-- Project Card -->
+  <article class="glass rounded-2xl p-6 space-y-6">
+    <!-- Overview -->
+    <div class="p-4 rounded-xl bg-gradient-to-r from-slate-800/60 to-slate-900/60 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-pink-300">
+        <i class="fa-solid fa-circle-info"></i> Project Overview
+      </h4>
+      <p class="text-slate-300 leading-relaxed mt-2">
+        This TCL project <span class="text-pink-400 font-semibold">parses an SDC (Synopsys Design Constraints) file</span>
+        and checks whether all critical constraints are defined.
+        It helps <span class="text-purple-300">Physical Design engineers</span>
+        quickly identify missing <code>create_clock</code>,
+        <code>set_input_delay</code>, and <code>set_output_delay</code> commands.
+      </p>
+    </div>
+
+    <!-- Use Cases -->
+    <div class="p-4 rounded-xl bg-gradient-to-r from-purple-800/50 to-purple-900/50 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-purple-300">
+        <i class="fa-solid fa-bolt"></i> Real-World Use Cases
+      </h4>
+      <ul class="grid md:grid-cols-2 gap-3 mt-3 text-slate-300">
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-microchip text-pink-400"></i> Verify timing constraints in STA setup
+        </li>
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-file-contract text-indigo-400"></i> Ensure complete SDC files before sign-off
+        </li>
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-shield-halved text-yellow-400"></i> Catch missing delays that can cause tape-out issues
+        </li>
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-clock text-green-400"></i> Validate clock definitions early in flow
+        </li>
+      </ul>
+    </div>
+
+    <!-- Script -->
+    <div>
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-pink-300">
+        <i class="fa-solid fa-code"></i> Implementation Script
+      </h4>
+      <div class="syntax-highlight mt-3">
+        <pre><code class="language-tcl"># ===============================
+# STA Constraint Checker in TCL
+# ===============================
+
+# 1. Open the SDC file for reading
+set fh [open "constraints.sdc" r]
+
+# 2. Read the file contents into a variable
+set data [read $fh]
+
+# 3. Close the file after reading
+close $fh
+
+# 4. Check for required constraints
+#    - create_clock : mandatory for defining clocks
+#    - set_input_delay : timing info for input ports
+#    - set_output_delay : timing info for output ports
+
+if {![regexp {create_clock} $data]} {
+    puts "⚠️ Missing clock definition!"
+}
+if {![regexp {set_input_delay} $data]} {
+    puts "⚠️ Missing input delay!"
+}
+if {![regexp {set_output_delay} $data]} {
+    puts "⚠️ Missing output delay!"
+}
+
+# End of Script
+</code></pre>
+      </div>
+    </div>
+
+    <!-- How to Run -->
+    <div class="p-4 rounded-xl bg-gradient-to-r from-pink-800/40 to-purple-900/40 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-pink-300">
+        <i class="fa-solid fa-terminal"></i> How to Run
+      </h4>
+      <ol class="list-decimal ml-6 mt-2 text-slate-300 space-y-1">
+        <li>Save the script as <code>sta_checker.tcl</code></li>
+        <li>Ensure you have an <code>constraints.sdc</code> file in the same directory</li>
+        <li>Run in terminal: <code>tclsh sta_checker.tcl</code></li>
+        <li>Check the output for warnings ⚠️ about missing constraints</li>
+        <li>Extend it to check more SDC commands (like <code>set_clock_uncertainty</code>)</li>
+      </ol>
+    </div>
+  </article>
+</section>
+<section id="proj-sed" class="lang-section hidden space-y-10">
+  <!-- Header -->
+  <div class="flex items-center gap-3">
+    <span class="badge px-3 py-1 rounded-full text-xs">SED Project</span>
+    <h3 class="text-xl md:text-2xl font-bold">Config Cleanup Automation</h3>
+  </div>
+
+  <!-- Project Card -->
+  <article class="glass rounded-2xl p-6 space-y-6">
+    <!-- Overview -->
+    <div class="p-4 rounded-xl bg-gradient-to-r from-slate-800/60 to-slate-900/60 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-emerald-300">
+        <i class="fa-solid fa-circle-info"></i> Project Overview
+      </h4>
+      <p class="text-slate-300 leading-relaxed mt-2">
+        This project uses <span class="text-emerald-400 font-semibold">Sed (Stream Editor)</span> to clean up
+        messy configuration files. It automatically removes <code class="text-yellow-300">comments (# ...)</code>,
+        trims extra spaces, deletes empty lines, and saves a cleaner version.
+        It’s ideal for <span class="text-teal-300">DevOps automation</span>,
+        <span class="text-teal-300">system setup scripts</span>, and <span class="text-teal-300">config migrations</span>.
+      </p>
+    </div>
+
+    <!-- Use Cases -->
+    <div class="p-4 rounded-xl bg-gradient-to-r from-teal-800/50 to-teal-900/50 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-teal-300">
+        <i class="fa-solid fa-bolt"></i> Real-World Use Cases
+      </h4>
+      <ul class="grid md:grid-cols-2 gap-3 mt-3 text-slate-300">
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-file-pen text-emerald-400"></i> Clean config files before deployment
+        </li>
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-database text-yellow-400"></i> Prepare sanitized config for version control
+        </li>
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-broom text-indigo-400"></i> Automate formatting for multiple .ini files
+        </li>
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-gear text-pink-400"></i> Speed up manual review during system audits
+        </li>
+      </ul>
+    </div>
+
+    <!-- Script -->
+    <div>
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-emerald-300">
+        <i class="fa-solid fa-code"></i> Implementation Script
+      </h4>
+      <div class="syntax-highlight mt-3">
+        <pre><code class="language-bash">#!/bin/bash
+# ================================
+# Config Cleanup Automation (SED)
+# ================================
+
+# Input configuration file
+input="config.ini"
+
+# Output cleaned configuration file
+output="cleaned_config.ini"
+
+# Sed command explanation:
+#   1. s/#.*//              → Remove everything after "#" (comments)
+#   2. s/^[[:space:]]+//    → Trim leading spaces
+#   3. s/[[:space:]]+$//    → Trim trailing spaces
+#   4. /^$/d                → Delete empty lines
+sed -E 's/#.*//; s/^[[:space:]]+//; s/[[:space:]]+$//; /^$/d' "$input" > "$output"
+
+echo "✅ Config cleanup complete: $output"
+</code></pre>
+      </div>
+    </div>
+
+    <!-- How to Run -->
+    <div class="p-4 rounded-xl bg-gradient-to-r from-green-800/40 to-green-900/40 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-green-300">
+        <i class="fa-solid fa-terminal"></i> How to Run
+      </h4>
+      <ol class="list-decimal ml-6 mt-2 text-slate-300 space-y-1">
+        <li>Save the script as <code>cleanup.sh</code></li>
+        <li>Make it executable: <code>chmod +x cleanup.sh</code></li>
+        <li>Ensure <code>config.ini</code> is in the same directory</li>
+        <li>Run the script: <code>./cleanup.sh</code></li>
+        <li>Check the cleaned version in <code>cleaned_config.ini</code></li>
+      </ol>
+    </div>
+  </article>
+</section>
+<section id="proj-awk" class="lang-section hidden space-y-10">
+  <!-- Header -->
+  <div class="flex items-center gap-3">
+    <span class="badge px-3 py-1 rounded-full text-xs">AWK Project</span>
+    <h3 class="text-xl md:text-2xl font-bold">CSV Summarizer</h3>
+  </div>
+
+  <!-- Project Card -->
+  <article class="glass rounded-2xl p-6 space-y-6">
+    <!-- Overview -->
+    <div class="p-4 rounded-xl bg-gradient-to-r from-slate-800/60 to-slate-900/60 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-yellow-300">
+        <i class="fa-solid fa-circle-info"></i> Project Overview
+      </h4>
+      <p class="text-slate-300 leading-relaxed mt-2">
+        This project uses <span class="text-yellow-400 font-semibold">Awk</span> to process CSV files
+        and compute the <code class="text-green-300">average of column 2 grouped by column 1</code>.
+        It’s a handy tool for <span class="text-indigo-300">data analysis</span>,
+        <span class="text-indigo-300">log processing</span>, and
+        <span class="text-indigo-300">quick reporting</span> without heavy tools like Excel or Python.
+      </p>
+    </div>
+
+    <!-- Use Cases -->
+    <div class="p-4 rounded-xl bg-gradient-to-r from-yellow-800/50 to-yellow-900/50 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-yellow-300">
+        <i class="fa-solid fa-bolt"></i> Real-World Use Cases
+      </h4>
+      <ul class="grid md:grid-cols-2 gap-3 mt-3 text-slate-300">
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-chart-line text-green-400"></i> Summarize sales data by region
+        </li>
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-database text-blue-400"></i> Compute averages in CSV log files
+        </li>
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-industry text-purple-400"></i> Group and analyze sensor readings
+        </li>
+        <li class="glass rounded-lg px-3 py-2 flex items-center gap-2">
+          <i class="fa-solid fa-users text-pink-400"></i> Generate quick reports from user data
+        </li>
+      </ul>
+    </div>
+
+    <!-- Script -->
+    <div>
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-yellow-300">
+        <i class="fa-solid fa-code"></i> Implementation Script
+      </h4>
+      <div class="syntax-highlight mt-3">
+        <pre><code class="language-bash">#!/usr/bin/awk -f
+# ===================================
+# CSV Summarizer (Average Calculator)
+# ===================================
+
+# Use comma as field separator (-F,)
+# $1 → first column (group key)
+# $2 → second column (numeric values)
+
+# BEGIN block: can initialize if needed
+# Process block: sum values and count occurrences per key
+{
+    sum[$1] += $2
+    count[$1]++
+}
+
+# END block: compute and print averages
+END {
+    for (key in sum) {
+        avg = sum[key] / count[key]
+        printf "%s → Average: %.2f\n", key, avg
+    }
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- How to Run -->
+    <div class="p-4 rounded-xl bg-gradient-to-r from-green-800/40 to-green-900/40 border border-white/10 shadow-md">
+      <h4 class="font-semibold text-lg flex items-center gap-2 text-green-300">
+        <i class="fa-solid fa-terminal"></i> How to Run
+      </h4>
+      <ol class="list-decimal ml-6 mt-2 text-slate-300 space-y-1">
+        <li>Prepare a CSV file, e.g. <code>data.csv</code>:
+          <pre class="bg-slate-800/60 rounded-lg p-3 mt-2 text-slate-200 text-sm">Region1,100
+Region1,200
+Region2,150
+Region2,250</pre>
+        </li>
+        <li>Run the script directly:
+          <code>awk -F, -f csv_summarizer.awk data.csv</code>
+        </li>
+        <li>Or use a one-liner:
+          <code>awk -F, '{sum[$1]+=$2; count[$1]++} END {for (k in sum) printf "%s → Avg: %.2f\n", k, sum[k]/count[k]}' data.csv</code>
+        </li>
+        <li>Output will show each group (Column 1) and its average of Column 2.</li>
+      </ol>
+    </div>
+  </article>
+</section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Console Panel -->
+  <section id="consolePanel" class="mt-auto">
+    <div class="max-w-7xl mx-auto px-6 py-4">
+      <div class="flex items-center justify-between mb-2">
+        <div class="font-semibold">Execution Console</div>
+        <div class="flex gap-2">
+          <button class="btn glass px-3 py-1 rounded-md" onclick="copyConsole()"><i class="fa-regular fa-copy mr-1"></i>Copy</button>
+          <button class="btn glass px-3 py-1 rounded-md" onclick="clearConsole()"><i class="fa-solid fa-broom mr-1"></i>Clear</button>
+          <button class="btn glass px-3 py-1 rounded-md" onclick="downloadConsole()"><i class="fa-regular fa-floppy-disk mr-1"></i>Download</button>
+        </div>
+      </div>
+      <div id="consoleOut" class="console-output"></div>
+    </div>
+  </section>
+
+  <!-- Guided Demo Modal -->
+  <div id="guidedModal" class="fixed inset-0 hidden items-center justify-center p-4 z-[60]">
+    <div class="absolute inset-0 bg-black/70" onclick="closeGuided()"></div>
+    <div class="relative glass ring-acc rounded-2xl w-full max-w-3xl p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold"><i class="fa-solid fa-route mr-2"></i>Guided Demo — <span id="guidedLang">BASH</span></h3>
+        <button class="btn glass px-3 py-1 rounded-md" onclick="closeGuided()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="guidedSteps">
+        <!-- Steps populated by JS -->
+      </div>
+      <div class="mt-5 flex items-center justify-between">
+        <button class="btn glass px-3 py-2 rounded-md" onclick="prevStep()"><i class="fa-solid fa-angle-left mr-2"></i>Prev</button>
+        <div class="text-slate-300" id="stepCounter">Step 1/3</div>
+        <button class="btn px-4 py-2 rounded-md text-white font-semibold" style="background: linear-gradient(90deg,#10b981,#22d3ee);" onclick="nextStep()">Next<i class="fa-solid fa-angle-right ml-2"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== Language switching =====
+    function getActiveLang(){
+      const sections = Array.from(document.querySelectorAll('.lang-section'));
+      const active = sections.find(s => !s.classList.contains('hidden'));
+      return active ? active.id : 'bash';
+    }
+    function switchLanguage(){
+      const lang = document.getElementById('languageSwitcher').value;
+      document.querySelectorAll('.lang-section').forEach(s => s.classList.add('hidden'));
+      const target = document.getElementById(lang);
+      if(target) target.classList.remove('hidden');
+      // update guided action
+    }
+
+    // ===== Copy code =====
+    function copyCode(btn){
+      const pre = btn.closest('article').querySelector('pre');
+      const code = pre ? pre.innerText : '';
+      navigator.clipboard.writeText(code);
+      toast('Code copied');
+    }
+
+    // ===== Console helpers =====
+    const consoleEl = () => document.getElementById('consoleOut');
+    function printLog(msg, type='info'){ const el = consoleEl(); el.innerHTML += `\n<span class="log-${type}">${escapeHtml(msg)}</span>`; el.scrollTop = el.scrollHeight; }
+    function clearConsole(){ consoleEl().innerHTML = ''; }
+    function copyConsole(){ const t = consoleEl().innerText; navigator.clipboard.writeText(t); toast('Console copied'); }
+    function downloadConsole(){ const blob = new Blob([consoleEl().innerText], {type:'text/plain'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `console_${Date.now()}.txt`; a.click(); URL.revokeObjectURL(a.href); }
+
+    // ===== Edit & Run (Interactive Playground) =====
+    function toggleEditor(btn, lang){
+  const card = btn.closest('article');
+  const container = card.querySelector('.syntax-highlight');
+  if(!card._editor){
+    const pre = container.querySelector('pre');
+    const original = pre.innerText;
+    const ta = document.createElement('textarea');
+    ta.value = original.trim();
+    container.innerHTML = '';
+    container.appendChild(ta);
+    const mode = (lang === 'tcl') ? 'text/x-tcl' : 'shell';
+    const editor = CodeMirror.fromTextArea(ta, { lineNumbers: true, theme: 'default', mode });
+    card._editor = editor;
+    card._original = original;
+
+    // Change button actions
+    btn.innerHTML = '<i class="fa-solid fa-play"></i> Run';
+    btn.onclick = () => runEditorCode(btn, lang);
+
+    // Add cancel button
+    const cancelBtn = document.createElement('button');
+    cancelBtn.className = "btn text-xs px-3 py-1 glass rounded-full";
+    cancelBtn.innerHTML = '<i class="fa-solid fa-xmark"></i> Cancel';
+    cancelBtn.onclick = () => {
+      editor.toTextArea();
+      container.innerHTML = `<pre><code class="language-bash">${escapeHtml(original)}</code></pre>`;
+      card._editor = null;
+      btn.innerHTML = '<i class="fa-solid fa-pen"></i> Edit & Run';
+      btn.onclick = () => toggleEditor(btn, lang);
+      cancelBtn.remove();
+    };
+    btn.parentNode.appendChild(cancelBtn);
+
+    toast('Editor enabled — make changes and Run');
+  } else {
+    runEditorCode(btn, lang);
+  }
+}
+
+    function runEditorCode(btn, lang){
+      const card = btn.closest('article');
+      const editor = card._editor;
+      const code = editor ? editor.getValue() : card.querySelector('pre')?.innerText;
+      simulateRun(code, lang);
+    }
+
+    function runAllVisible(){
+      const visible = Array.from(document.querySelectorAll('.lang-section:not(.hidden) article pre'));
+      printLog('Running all visible snippets…', 'info');
+      visible.forEach((pre, i) => setTimeout(() => simulateRun(pre.innerText, getActiveLang()), 80*i));
+    }
+
+    // ===== VERY SIMPLE simulated runner (client-side) =====
+    function simulateRun(code, lang){
+      printLog(`$ ${firstLine(code)}`, 'info');
+      // naive recognizers for a few common patterns to make output feel real
+      if(/echo\s+\".*\"|echo\s+\'.*\'/.test(code)){
+        const matches = code.match(/echo\s+(?:\"([^\"]*)\"|\'([^\']*)\')/);
+        if(matches) printLog(matches[1] || matches[2] || '', 'ok');
+      }
+      if(/grep\s+-c\s+\"ERROR\"/.test(code)){
+        printLog('Total errors: 0', 'ok');
+      }
+      if(/for\s+i\s+in\s+\{1\.\.3\}/.test(code) || /for i in \{1\.\.3\}/.test(code)){
+        ['Started task 1','Started task 2','Started task 3','Task 1 done','Task 2 done','Task 3 done','All tasks completed'].forEach((l,idx)=>setTimeout(()=>printLog(l,'ok'),200+idx*150));
+      }
+      if(lang === 'tcl' && /puts\s+\".*\"/.test(code)){
+        const m = code.match(/puts\s+\"([^\"]*)\"/);
+        if(m) printLog(m[1],'ok');
+      }
+      if(/read -p/.test(code)){
+        printLog('Input requested → [simulated input: Kunal]','warn');
+        if(/name/.test(code)) printLog('Hello, Kunal!','ok');
+      }
+      if(/file\s*=\s*\"\$1\"/.test(code) || /file=\$1/.test(code)){
+        printLog('Backup created: demo_2025-08-29_120000.bak','ok');
+      }
+      // generic finish
+      setTimeout(()=>printLog('Process finished. (Simulated execution)\n','info'), 500);
+    }
+
+    function firstLine(t){ return (t || '').trim().split(/\n/)[0]; }
+    function escapeHtml(s){ return s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+    // ===== Cheatsheet (PDF) =====
+    function downloadCheatsheetForActive(){ downloadCheatsheet(getActiveLang()); }
+    function downloadCheatsheet(lang){
+      const { jsPDF } = window.jspdf; const doc = new jsPDF({ unit:'pt', format:'a4' });
+      const section = document.getElementById(lang);
+      const blocks = section.querySelectorAll('article pre');
+      let y = 56; const lh = 14; const margin = 40; const width = 515;
+      doc.setFont('courier','normal'); doc.setFontSize(11);
+      doc.text(`Scripting Mastery — ${lang.toUpperCase()} Cheatsheet`, margin, y); y += 22;
+      blocks.forEach((pre, idx) => {
+        const label = `Snippet ${idx+1}`; doc.setFont('courier','bold'); doc.text(label, margin, y); y += 16; doc.setFont('courier','normal');
+        const lines = pre.innerText.split('\n');
+        lines.forEach(line => { const chunks = chunkLine(line, 90); chunks.forEach(ch => { if(y > 770){ doc.addPage(); y = 56; } doc.text(ch, margin, y); y += lh; }); });
+        y += 10;
+      });
+      doc.save(`${lang}_cheatsheet.pdf`);
+      toast('Cheatsheet generated');
+    }
+    function chunkLine(str, n){ const out=[]; for(let i=0;i<str.length;i+=n) out.push(str.slice(i,i+n)); return out; }
+
+    // ===== Guided Demo =====
+    const guided = {
+      bash: [
+        { title: 'Hello World', code: '#!/bin/bash\necho "Hello, World!"', note: 'Classic first run. Prints a line.' },
+        { title: 'Read Input', code: '#!/bin/bash\nread -p "Enter your name: " name\necho "Hello, $name!"', note: 'Shows prompt + variable expansion.' },
+        { title: 'Parallel Tasks', code: '#!/bin/bash\nfor i in {1..3}; do\n  (sleep $i; echo "Task $i done") &\n  echo "Started task $i"\ndone\nwait\necho "All tasks completed"', note: 'Simple concurrency using & and wait.' }
+      ],
+      tcl: [
+        { title: 'Hello World', code: 'puts "Hello, World!"', note: 'Minimal TCL output.' },
+        { title: 'Input', code: 'puts "Enter your name: "\nflush stdout\ngets stdin name\nputs "Hello, $name!"', note: 'stdin read and variable use.' }
+      ]
+    };
+    let stepIndex = 0; let stepLang = 'bash';
+    function openGuided(lang) {
+  // Map section IDs by language
+  const langSections = {
+    bash: "bash",
+    tcl: "tcl",
+    sed: "sed",
+    awk: "awk",
+    grep: "grep"
+  };
+    const sectionId = langSections[lang];
+  if (!sectionId) {
+    alert("Guided demo not available for " + lang.toUpperCase());
+    return;
+  }
+
+  // Collect all example cards (up to 15 per language)
+  const cards = document.querySelectorAll(`#${sectionId} article`);
+  if (!cards.length) {
+    alert("No examples found for " + lang.toUpperCase());
+    return;
+  }
+
+  let index = 0;
+
+  function showStep() {
+    // Remove any active highlight
+    cards.forEach(card => card.classList.remove("ring-4","ring-acc"));
+
+    // Highlight current card
+    cards[index].scrollIntoView({ behavior: "smooth", block: "center" });
+    cards[index].classList.add("ring-4","ring-acc");
+
+    // Auto-advance after 3s
+    setTimeout(() => {
+      index++;
+      if (index < cards.length && index < 15) {
+        showStep();
+      } else {
+        // End
+        cards.forEach(card => card.classList.remove("ring-4","ring-acc"));
+        alert(lang.toUpperCase() + " guided demo finished!");
+      }
+    }, 3000);
+  }
+
+  showStep();
+}
+    function closeGuided(){ document.getElementById('guidedModal').classList.add('hidden'); document.getElementById('guidedModal').classList.remove('flex'); }
+    function buildSteps(){ const holder = document.getElementById('guidedSteps'); holder.innerHTML = ''; guided[stepLang].forEach((s, i) => { const div = document.createElement('div'); div.className = 'demo-step' + (i===0?' active':''); div.innerHTML = `<div class="glass rounded-xl p-4 mb-3"><div class="text-sm text-slate-300 mb-2">${s.note}</div><pre class="syntax-highlight"><code class="language-bash">${escapeHtml(s.code)}</code></pre><div class="mt-3 flex gap-2"><button class="btn glass px-3 py-1 rounded-md" onclick="simulateRun(\`${s.code.replace(/`/g,'\\`')}\`, '${stepLang}')"><i class='fa-solid fa-play mr-1'></i>Run</button><button class="btn glass px-3 py-1 rounded-md" onclick="toPlayground(\`${s.code.replace(/`/g,'\\`')}\`, '${stepLang}')"><i class='fa-solid fa-pen mr-1'></i>Edit in Playground</button></div></div>`; holder.appendChild(div); }); Prism.highlightAllUnder(holder); }
+    function nextStep(){ const steps = Array.from(document.querySelectorAll('#guidedSteps .demo-step')); steps[stepIndex].classList.remove('active'); stepIndex = (stepIndex + 1) % steps.length; steps[stepIndex].classList.add('active'); updateStepCounter(); }
+    function prevStep(){ const steps = Array.from(document.querySelectorAll('#guidedSteps .demo-step')); steps[stepIndex].classList.remove('active'); stepIndex = (stepIndex - 1 + steps.length) % steps.length; steps[stepIndex].classList.add('active'); updateStepCounter(); }
+    function updateStepCounter(){ const total = guided[stepLang].length; document.getElementById('stepCounter').innerText = `Step ${stepIndex+1}/${total}`; }
+    function toPlayground(code, lang){ closeGuided(); // open the first card of the active lang and inject editor
+      const section = document.getElementById(lang);
+      // Prefer the first article
+      const art = section.querySelector('article');
+      const btn = art.querySelector('header button');
+      if(btn) { toggleEditor(btn, lang); setTimeout(()=>{ art._editor?.setValue(code); toast('Loaded code into playground'); }, 60); }
+    }
+
+    // ===== Toast =====
+    function toast(msg){ const t = document.createElement('div'); t.textContent = msg; t.className = 'fixed bottom-6 right-6 px-4 py-2 rounded-lg glass'; document.body.appendChild(t); setTimeout(()=> t.remove(), 1500); }
+
+    // Init: show BASH by default
+document.addEventListener('DOMContentLoaded', () => {
+  switchLanguage();
+  Prism.highlightAll();
+  printLog("🚀 Welcome to the Scripting Mastery Console", "ok");
+  printLog("Type, Edit & Run your scripts here!", "info");
+});
+
+      function openSection(id) {
+  document.querySelectorAll('section').forEach(sec => sec.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+
+  </script>
+</body>
+</html>
+
